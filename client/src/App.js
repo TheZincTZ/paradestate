@@ -46,6 +46,8 @@ function App() {
   });
   const [newPerson, setNewPerson] = useState({ name: '', status: STATUS_TYPES.PRESENT });
   const [selectedParadeType, setSelectedParadeType] = useState(PARADE_TYPES.LAST);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchBranches();
@@ -54,7 +56,8 @@ function App() {
 
   useEffect(() => {
     if (selectedBranch) {
-      setFilteredPersonnel(personnel.filter(p => p.branch === selectedBranch));
+      const filtered = personnel.filter(p => p.branch === selectedBranch);
+      setFilteredPersonnel(filtered);
     } else {
       setFilteredPersonnel([]);
     }
@@ -62,27 +65,37 @@ function App() {
 
   const fetchBranches = async () => {
     try {
+      setLoading(true);
       const { data, error } = await supabase
         .from('branches')
-        .select('*');
+        .select('*')
+        .order('name');
       
       if (error) throw error;
-      setBranches(data);
+      setBranches(data || []);
     } catch (error) {
       console.error('Error fetching branches:', error);
+      setError('Failed to fetch branches');
+    } finally {
+      setLoading(false);
     }
   };
 
   const fetchPersonnel = async () => {
     try {
+      setLoading(true);
       const { data, error } = await supabase
         .from('personnel')
-        .select('*');
+        .select('*')
+        .order('name');
       
       if (error) throw error;
-      setPersonnel(data);
+      setPersonnel(data || []);
     } catch (error) {
       console.error('Error fetching personnel:', error);
+      setError('Failed to fetch personnel');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -119,6 +132,16 @@ function App() {
     navigator.clipboard.writeText(generateReport());
   };
 
+  if (error) {
+    return (
+      <Container maxWidth="md" sx={{ py: 4 }}>
+        <Paper elevation={3} sx={{ p: 3 }}>
+          <Typography color="error">{error}</Typography>
+        </Paper>
+      </Container>
+    );
+  }
+
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
       <Paper elevation={3} sx={{ p: 3 }}>
@@ -149,6 +172,7 @@ function App() {
             value={selectedBranch}
             onChange={(e) => setSelectedBranch(e.target.value)}
             label="Branch"
+            disabled={loading}
           >
             {branches.map((branch) => (
               <MenuItem key={branch.id} value={branch.name}>
@@ -176,9 +200,10 @@ function App() {
                     {...params}
                     label="Person Name"
                     fullWidth
+                    disabled={!selectedBranch || loading}
                   />
                 )}
-                disabled={!selectedBranch}
+                disabled={!selectedBranch || loading}
               />
             </Grid>
             <Grid item xs={4}>
@@ -188,6 +213,7 @@ function App() {
                   value={newPerson.status}
                   onChange={(e) => setNewPerson({ ...newPerson, status: e.target.value })}
                   label="Status"
+                  disabled={loading}
                 >
                   {Object.values(STATUS_TYPES).map((status) => (
                     <MenuItem key={status} value={status}>
@@ -202,6 +228,7 @@ function App() {
             variant="contained"
             onClick={handleAddPerson}
             sx={{ mt: 2 }}
+            disabled={!newPerson.name || loading}
           >
             Add Person
           </Button>
@@ -227,6 +254,7 @@ function App() {
           color="primary"
           onClick={copyToClipboard}
           sx={{ mt: 3 }}
+          disabled={!selectedBranch || loading}
         >
           Copy {selectedParadeType} Report to Clipboard
         </Button>
