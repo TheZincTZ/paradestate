@@ -5,6 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
+    "build": "node build.js",
     "dev": "nodemon server.js",
     "client": "cd client && npm start",
     "dev:full": "concurrently \"npm run dev\" \"npm run client\""
@@ -12,12 +13,12 @@
   "dependencies": {
     "express": "^4.18.2",
     "cors": "^2.8.5",
-    "dotenv": "^16.3.1",
+    "dotenv": "^16.0.3",
     "mongoose": "^7.5.0",
     "@supabase/supabase-js": "^2.39.0"
   },
   "devDependencies": {
-    "nodemon": "^3.0.1",
+    "nodemon": "^2.0.22",
     "concurrently": "^8.2.1"
   }
 } 
