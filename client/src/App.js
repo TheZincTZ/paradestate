@@ -4,7 +4,6 @@ import {
   Paper,
   Typography,
   Box,
-  TextField,
   Button,
   FormControl,
   InputLabel,
@@ -13,7 +12,6 @@ import {
   Grid,
   Chip,
   ButtonGroup,
-  Autocomplete,
   useTheme,
   useMediaQuery,
   ThemeProvider,
@@ -111,8 +109,8 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const muiTheme = useTheme();
+  const isMobile = useMediaQuery(muiTheme.breakpoints.down('sm'));
 
   useEffect(() => {
     fetchBranches();
